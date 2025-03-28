@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelDancer Deep Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: white;
+        }
+        .deep-link-container {
+            margin: 30px 0;
+        }
+        .deep-link-button {
+            display: inline-block;
+            background-color: #4285f4;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .deep-link-text {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            word-break: break-all;
+            font-size: 12px;
+            text-align: left;
+        }
+        .instructions {
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>PixelDancer Deep Link</h1>
+    
+    <div class="deep-link-container">
+        <p>Your data (edit if needed):</p>
+        <textarea id="dataInput" class="input-field" rows="6"></textarea>
+        
+        <p>Tap the button below to open this content in the PixelDancer app:</p>
+        <a id="deepLinkButton" class="deep-link-button" href="#">Open in PixelDancer</a>
+        
+        <div class="instructions">
+            <p>If the button doesn't work, copy the link below and paste it in your browser:</p>
+            <div id="deepLinkText" class="deep-link-text"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const dataInput = document.getElementById('dataInput');
+            const deepLinkButton = document.getElementById('deepLinkButton');
+            const deepLinkText = document.getElementById('deepLinkText');
+            
+            // Function to extract raw data from URL path
+            function extractRawData() {
+                // Get the full URL
+                const fullUrl = window.location.href;
+                
+                // Get the domain and protocol part
+                const baseUrl = window.location.origin;
+                
+                // If the full URL is longer than the base URL, extract the extra part
+                if (fullUrl.length > baseUrl.length) {
+                    // +1 to account for the trailing slash in the base URL
+                    return fullUrl.substring(baseUrl.length + 1);
+                }
+                
+                return '';
+            }
+            
+            // Initialize with data from URL if available
+            const initialData = extractRawData();
+            dataInput.value = initialData;
+            
+            // Update deep link with literal string (no encoding)
+            function updateDeepLink() {
+                const data = dataInput.value;
+                if (data) {
+                    // Use the literal string without encoding
+                    const deepLink = 'pixeldancer://share?data=' + data;
+                    deepLinkButton.href = deepLink;
+                    deepLinkText.textContent = deepLink;
+                } else {
+                    deepLinkButton.href = '#';
+                    deepLinkText.textContent = 'No data provided';
+                }
+            }
+            
+            // Set initial deep link
+            updateDeepLink();
+            
+            // Update when input changes
+            dataInput.addEventListener('input', updateDeepLink);
+        });
+    </script>
+</body>
+</html>
