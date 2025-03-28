@@ -29,23 +29,15 @@
             cursor: pointer;
         }
         .input-field {
-            width: 100%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
+            display: none;
         }
         .deep-link-text {
-            margin: 20px 0;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-            word-break: break-all;
-            font-size: 12px;
-            text-align: left;
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            margin: 0;
+            padding: 0;
+            border: none;
         }
         .instructions {
             margin: 20px 0;
@@ -55,17 +47,16 @@
     </style>
 </head>
 <body>
-    <h1>PixelDancer Deep Link test stuff</h1>
+    <h1>Pixel Dancer Deep Link</h1>
     
     <div class="deep-link-container">
-        <p>Your data (edit if needed):</p>
         <textarea id="dataInput" class="input-field" rows="6"></textarea>
         
-        <p>Tap the button below to open this content in the PixelDancer app:</p>
+        <p>Tap the button below to open WEC Configuration in the Pixel Dancer app:</p>
         <a id="deepLinkButton" class="deep-link-button" href="#">Open in PixelDancer</a>
         
         <div class="instructions">
-            <p>If the button doesn't work, copy the link below and paste it in your browser:</p>
+            <button id="copyButton" class="deep-link-button" style="background-color: #34a853;">Copy Deep Link</button>
             <div id="deepLinkText" class="deep-link-text"></div>
         </div>
     </div>
@@ -75,6 +66,7 @@
             const dataInput = document.getElementById('dataInput');
             const deepLinkButton = document.getElementById('deepLinkButton');
             const deepLinkText = document.getElementById('deepLinkText');
+            const copyButton = document.getElementById('copyButton');
             
             // Function to extract the data parameter value without any processing
             function getDataParamRaw() {
@@ -105,24 +97,200 @@
             // Use the literal string without any decoding
             dataInput.value = initialData;
             
-            // Update deep link with literal string
-            function updateDeepLink() {
+            // Generate deep link
+            function generateDeepLink() {
                 const data = dataInput.value;
                 if (data) {
                     // Use the literal string exactly as is
-                    const deepLink = 'pixeldancer://share?data=' + data;
+                    return 'pixeldancer://share?data=' + data;
+                } else {
+                    return '';
+                }
+            }
+            
+            // Update deep link
+            function updateDeepLink() {
+                const deepLink = generateDeepLink();
+                if (deepLink) {
                     deepLinkButton.href = deepLink;
                     deepLinkText.textContent = deepLink;
                 } else {
                     deepLinkButton.href = '#';
-                    deepLinkText.textContent = 'No data provided';
+                    deepLinkText.textContent = '';
                 }
             }
+            
+            // Set up copy button functionality
+            copyButton.addEventListener('click', function() {
+                const deepLink = generateDeepLink();
+                if (deepLink) {
+                    navigator.clipboard.writeText(deepLink).then(function() {
+                        // Change button text temporarily to indicate success
+                        const originalText = copyButton.textContent;
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(function() {
+                            copyButton.textContent = originalText;
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy link. Please try again.');
+                    });
+                }
+            });
             
             // Set initial deep link
             updateDeepLink();
             
-            // Update when input changes
+            // Update when input changes - keeping this for functionality
+            dataInput.addEventListener('input', updateDeepLink);
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelDancer Deep Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: white;
+        }
+        .deep-link-container {
+            margin: 30px 0;
+        }
+        .deep-link-button {
+            display: inline-block;
+            background-color: #4285f4;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin: 10px 0;
+            border: none;
+            cursor: pointer;
+        }
+        .input-field {
+            display: none;
+        }
+        .deep-link-text {
+            height: 0;
+            overflow: hidden;
+            visibility: hidden;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+        .instructions {
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pixel Dancer Deep Link</h1>
+    
+    <div class="deep-link-container">
+        <textarea id="dataInput" class="input-field" rows="6"></textarea>
+        
+        <p>Tap the button below to open WEC Configuration in the Pixel Dancer app:</p>
+        <a id="deepLinkButton" class="deep-link-button" href="#">Open in PixelDancer</a>
+        
+        <div class="instructions">
+            <button id="copyButton" class="deep-link-button" style="background-color: #34a853;">Copy Deep Link</button>
+            <div id="deepLinkText" class="deep-link-text"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const dataInput = document.getElementById('dataInput');
+            const deepLinkButton = document.getElementById('deepLinkButton');
+            const deepLinkText = document.getElementById('deepLinkText');
+            const copyButton = document.getElementById('copyButton');
+            
+            // Function to extract the data parameter value without any processing
+            function getDataParamRaw() {
+                // Get the raw query string
+                const queryString = window.location.search;
+                
+                // If there's no query string, return empty
+                if (!queryString) return '';
+                
+                // Find the position of 'data=' in the query string
+                const dataParamPos = queryString.indexOf('data=');
+                if (dataParamPos === -1) return '';
+                
+                // Extract everything after 'data=' (start position + 5 for 'data=')
+                const rawData = queryString.substring(dataParamPos + 5);
+                
+                // If there are other parameters after this one, truncate at the &
+                const ampPos = rawData.indexOf('&');
+                if (ampPos !== -1) {
+                    return rawData.substring(0, ampPos);
+                }
+                
+                return rawData;
+            }
+            
+            // Initialize with raw data parameter
+            const initialData = getDataParamRaw();
+            // Use the literal string without any decoding
+            dataInput.value = initialData;
+            
+            // Generate deep link
+            function generateDeepLink() {
+                const data = dataInput.value;
+                if (data) {
+                    // Use the literal string exactly as is
+                    return 'pixeldancer://share?data=' + data;
+                } else {
+                    return '';
+                }
+            }
+            
+            // Update deep link
+            function updateDeepLink() {
+                const deepLink = generateDeepLink();
+                if (deepLink) {
+                    deepLinkButton.href = deepLink;
+                    deepLinkText.textContent = deepLink;
+                } else {
+                    deepLinkButton.href = '#';
+                    deepLinkText.textContent = '';
+                }
+            }
+            
+            // Set up copy button functionality
+            copyButton.addEventListener('click', function() {
+                const deepLink = generateDeepLink();
+                if (deepLink) {
+                    navigator.clipboard.writeText(deepLink).then(function() {
+                        // Change button text temporarily to indicate success
+                        const originalText = copyButton.textContent;
+                        copyButton.textContent = 'Copied!';
+                        setTimeout(function() {
+                            copyButton.textContent = originalText;
+                        }, 2000);
+                    }).catch(function(err) {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy link. Please try again.');
+                    });
+                }
+            });
+            
+            // Set initial deep link
+            updateDeepLink();
+            
+            // Update when input changes - keeping this for functionality
             dataInput.addEventListener('input', updateDeepLink);
         });
     </script>
