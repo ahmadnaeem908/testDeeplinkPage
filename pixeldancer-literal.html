@@ -18,7 +18,7 @@
         }
         .deep-link-button {
             display: inline-block;
-            background-color: #4285f4;
+            background-color: #34a853;
             color: white;
             font-size: 16px;
             padding: 12px 24px;
@@ -44,6 +44,11 @@
             font-size: 14px;
             color: #666;
         }
+        #status {
+            margin: 20px 0;
+            font-weight: bold;
+            color: #4285f4;
+        }
     </style>
 </head>
 <body>
@@ -52,11 +57,10 @@
     <div class="deep-link-container">
         <textarea id="dataInput" class="input-field" rows="6"></textarea>
         
-        <p>Tap the button below to open WEC Configuration in the Pixel Dancer app:</p>
-        <a id="deepLinkButton" class="deep-link-button" href="#">Open in PixelDancer</a>
+        <p id="status">Redirecting to PixelDancer app...</p>
         
         <div class="instructions">
-            <button id="copyButton" class="deep-link-button" style="background-color: #34a853;">Copy Deep Link</button>
+            <button id="copyButton" class="deep-link-button">Copy Deep Link</button>
             <div id="deepLinkText" class="deep-link-text"></div>
         </div>
     </div>
@@ -64,9 +68,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Get DOM elements
             const dataInput = document.getElementById('dataInput');
-            const deepLinkButton = document.getElementById('deepLinkButton');
             const deepLinkText = document.getElementById('deepLinkText');
             const copyButton = document.getElementById('copyButton');
+            const statusElement = document.getElementById('status');
             
             // Function to extract the data parameter value without any processing
             function getDataParamRaw() {
@@ -108,15 +112,26 @@
                 }
             }
             
-            // Update deep link
-            function updateDeepLink() {
+            // Open deep link automatically
+            function openDeepLink() {
                 const deepLink = generateDeepLink();
                 if (deepLink) {
-                    deepLinkButton.href = deepLink;
                     deepLinkText.textContent = deepLink;
+                    
+                    try {
+                        // Attempt to open the app
+                        window.location.href = deepLink;
+                        
+                        // Clear the status message after a short delay
+                        setTimeout(function() {
+                            statusElement.textContent = "";
+                        }, 2000);
+                    } catch (e) {
+                        statusElement.textContent = "Couldn't open PixelDancer automatically. Please use the Copy button.";
+                        console.error("Error opening deep link:", e);
+                    }
                 } else {
-                    deepLinkButton.href = '#';
-                    deepLinkText.textContent = '';
+                    statusElement.textContent = "No data found to open PixelDancer.";
                 }
             }
             
@@ -138,160 +153,8 @@
                 }
             });
             
-            // Set initial deep link
-            updateDeepLink();
-            
-            // Update when input changes - keeping this for functionality
-            dataInput.addEventListener('input', updateDeepLink);
-        });
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelDancer Deep Link</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            background-color: white;
-        }
-        .deep-link-container {
-            margin: 30px 0;
-        }
-        .deep-link-button {
-            display: inline-block;
-            background-color: #4285f4;
-            color: white;
-            font-size: 16px;
-            padding: 12px 24px;
-            border-radius: 4px;
-            text-decoration: none;
-            margin: 10px 0;
-            border: none;
-            cursor: pointer;
-        }
-        .input-field {
-            display: none;
-        }
-        .deep-link-text {
-            height: 0;
-            overflow: hidden;
-            visibility: hidden;
-            margin: 0;
-            padding: 0;
-            border: none;
-        }
-        .instructions {
-            margin: 20px 0;
-            font-size: 14px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <h1>Pixel Dancer Deep Link</h1>
-    
-    <div class="deep-link-container">
-        <textarea id="dataInput" class="input-field" rows="6"></textarea>
-        
-        <p>Tap the button below to open WEC Configuration in the Pixel Dancer app:</p>
-        <a id="deepLinkButton" class="deep-link-button" href="#">Open in PixelDancer</a>
-        
-        <div class="instructions">
-            <button id="copyButton" class="deep-link-button" style="background-color: #34a853;">Copy Deep Link</button>
-            <div id="deepLinkText" class="deep-link-text"></div>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get DOM elements
-            const dataInput = document.getElementById('dataInput');
-            const deepLinkButton = document.getElementById('deepLinkButton');
-            const deepLinkText = document.getElementById('deepLinkText');
-            const copyButton = document.getElementById('copyButton');
-            
-            // Function to extract the data parameter value without any processing
-            function getDataParamRaw() {
-                // Get the raw query string
-                const queryString = window.location.search;
-                
-                // If there's no query string, return empty
-                if (!queryString) return '';
-                
-                // Find the position of 'data=' in the query string
-                const dataParamPos = queryString.indexOf('data=');
-                if (dataParamPos === -1) return '';
-                
-                // Extract everything after 'data=' (start position + 5 for 'data=')
-                const rawData = queryString.substring(dataParamPos + 5);
-                
-                // If there are other parameters after this one, truncate at the &
-                const ampPos = rawData.indexOf('&');
-                if (ampPos !== -1) {
-                    return rawData.substring(0, ampPos);
-                }
-                
-                return rawData;
-            }
-            
-            // Initialize with raw data parameter
-            const initialData = getDataParamRaw();
-            // Use the literal string without any decoding
-            dataInput.value = initialData;
-            
-            // Generate deep link
-            function generateDeepLink() {
-                const data = dataInput.value;
-                if (data) {
-                    // Use the literal string exactly as is
-                    return 'pixeldancer://share?data=' + data;
-                } else {
-                    return '';
-                }
-            }
-            
-            // Update deep link
-            function updateDeepLink() {
-                const deepLink = generateDeepLink();
-                if (deepLink) {
-                    deepLinkButton.href = deepLink;
-                    deepLinkText.textContent = deepLink;
-                } else {
-                    deepLinkButton.href = '#';
-                    deepLinkText.textContent = '';
-                }
-            }
-            
-            // Set up copy button functionality
-            copyButton.addEventListener('click', function() {
-                const deepLink = generateDeepLink();
-                if (deepLink) {
-                    navigator.clipboard.writeText(deepLink).then(function() {
-                        // Change button text temporarily to indicate success
-                        const originalText = copyButton.textContent;
-                        copyButton.textContent = 'Copied!';
-                        setTimeout(function() {
-                            copyButton.textContent = originalText;
-                        }, 2000);
-                    }).catch(function(err) {
-                        console.error('Failed to copy: ', err);
-                        alert('Failed to copy link. Please try again.');
-                    });
-                }
-            });
-            
-            // Set initial deep link
-            updateDeepLink();
-            
-            // Update when input changes - keeping this for functionality
-            dataInput.addEventListener('input', updateDeepLink);
+            // Trigger deep link opening after a short delay
+            setTimeout(openDeepLink, 500);
         });
     </script>
 </body>
