@@ -76,32 +76,40 @@
             const deepLinkButton = document.getElementById('deepLinkButton');
             const deepLinkText = document.getElementById('deepLinkText');
             
-            // Function to extract raw data from URL path
-            function extractRawData() {
-                // Get the full URL
-                const fullUrl = window.location.href;
+            // Function to extract the data parameter value without any processing
+            function getDataParamRaw() {
+                // Get the raw query string
+                const queryString = window.location.search;
                 
-                // Get the domain and protocol part
-                const baseUrl = window.location.origin;
+                // If there's no query string, return empty
+                if (!queryString) return '';
                 
-                // If the full URL is longer than the base URL, extract the extra part
-                if (fullUrl.length > baseUrl.length) {
-                    // +1 to account for the trailing slash in the base URL
-                    return fullUrl.substring(baseUrl.length + 1);
+                // Find the position of 'data=' in the query string
+                const dataParamPos = queryString.indexOf('data=');
+                if (dataParamPos === -1) return '';
+                
+                // Extract everything after 'data=' (start position + 5 for 'data=')
+                const rawData = queryString.substring(dataParamPos + 5);
+                
+                // If there are other parameters after this one, truncate at the &
+                const ampPos = rawData.indexOf('&');
+                if (ampPos !== -1) {
+                    return rawData.substring(0, ampPos);
                 }
                 
-                return '';
+                return rawData;
             }
             
-            // Initialize with data from URL if available
-            const initialData = extractRawData();
+            // Initialize with raw data parameter
+            const initialData = getDataParamRaw();
+            // Use the literal string without any decoding
             dataInput.value = initialData;
             
-            // Update deep link with literal string (no encoding)
+            // Update deep link with literal string
             function updateDeepLink() {
                 const data = dataInput.value;
                 if (data) {
-                    // Use the literal string without encoding
+                    // Use the literal string exactly as is
                     const deepLink = 'pixeldancer://share?data=' + data;
                     deepLinkButton.href = deepLink;
                     deepLinkText.textContent = deepLink;
