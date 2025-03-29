@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "HMPJT2FUR8.rainmin.pd.123",
+        "paths": ["/testDeeplinkPage/*"]
+      }
+    ]
+  }
+}
